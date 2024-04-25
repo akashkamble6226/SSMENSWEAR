@@ -2,12 +2,9 @@ import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
   CloseOutlined,
-  LeftOutlined,
   LeftSquareOutlined,
-  RightOutlined,
   RightSquareOutlined,
   UserAddOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import {
   Col,
@@ -16,22 +13,16 @@ import {
   Modal,
   Row,
   Input,
-  Spin,
   Button,
   ConfigProvider,
-  Select,
   Typography,
   Radio,
   List,
   Card,
-  Image,
   Avatar,
-  InputNumber,
-  Slider,
-  DatePicker,
   notification,
 } from "antd";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import styles from "./IncompletOrders.css";
 import shirt from "../assets/shirt.png";

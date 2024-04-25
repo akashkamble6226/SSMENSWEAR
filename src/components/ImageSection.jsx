@@ -3,14 +3,12 @@ import { FormattedMessage } from "react-intl";
 import user from "../assets/user.png";
 import cloth from "../assets/cloth.png";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 
 const { Text } = Typography;
 
 const ImageSection = () => {
   const [stream, setStream] = useState(null);
   // open camera
- 
 
   const openCamera = async () => {
     try {
@@ -18,6 +16,7 @@ const ImageSection = () => {
         video: true,
       });
       setStream(mediaStream);
+      console.log(stream);
     } catch (error) {
       console.error("Error accessing camera:", error);
     }

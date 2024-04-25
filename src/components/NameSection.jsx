@@ -1,4 +1,4 @@
-import { Col, Row, Typography, Image, Input, Form, DatePicker } from "antd";
+import { Col, Row, Typography, Input, Form, DatePicker } from "antd";
 import { FormattedMessage } from "react-intl";
 
 import { useState } from "react";
@@ -7,8 +7,8 @@ const { Text } = Typography;
 
 const NameSection = (getDateCost) => {
   // const [datesData, setDatesData] = useState(new Set());
-  const [dueDate, setDueDate] = useState(null);
-  const [dueDateRemember, setDueDateRemember] = useState(null);
+  // const [dueDate, setDueDate] = useState(null);
+  // const [dueDateRemember, setDueDateRemember] = useState(null);
 
   // save the date and cost info to the slice
   // if(dueDate && setDueDate ) {

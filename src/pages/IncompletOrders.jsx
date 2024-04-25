@@ -29,8 +29,9 @@ import {
   InputNumber,
   Slider,
   DatePicker,
+  notification,
 } from "antd";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import styles from "./IncompletOrders.css";
 import shirt from "../assets/shirt.png";
@@ -76,7 +77,13 @@ import {
   setHipSizeState,
   setWristSizeState,
 } from "../store/newCustomerSliceNext";
+import { db } from "../firebase";
+import { addDoc, collection } from "firebase/firestore";
 const { Text } = Typography;
+
+const Context = React.createContext({
+  name: "Default",
+});
 
 const IncompleteOrders = () => {
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
@@ -84,7 +91,7 @@ const IncompleteOrders = () => {
   const [value, setValue] = useState(1);
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [isNewCustomerDetails, setIsNewCustomerDetails] = useState(false);
-
+  const [api, contextHolder] = notification.useNotification();
   const [toggleCountPant, setToggleCountPant] = useState(1);
   const [toggleCountShirt, setToggleCountShirt] = useState(1);
 
@@ -109,12 +116,22 @@ const IncompleteOrders = () => {
   const customerName = useSelector((state) => state.newCustomerRecord.name);
   const customerPhone = useSelector((state) => state.newCustomerRecord.phone);
   const customerGender = useSelector((state) => state.newCustomerRecord.gender);
-  const customerShirtDetails = useSelector((state) => state.newCustomerRecord.shirt);
-  // const val = useSelector((state) => state.newCustomerRecordNext.length);
-  // const val2 = useSelector((state) => state.newCustomerRecordNext.lengthSize);
+  const customerShirtDetails = useSelector(
+    (state) => state.newCustomerRecord.shirt
+  );
+
   // useEffect(() => {
-  //   console.log(val,val2);
-  // }, [val,val2]);
+
+  //   // save the name,phone,gender and shirt details to firebase
+
+  // }, []);
+  const openNotificationWithIcon = (type, msg, desc) => {
+    api[type]({
+      message: msg,
+      description: desc,
+    });
+  };
+
   const formRef = useRef(null);
 
   const selectItem = (itemId) => {
@@ -136,7 +153,24 @@ const IncompleteOrders = () => {
     setIsNewCustomerDetails(false);
   };
 
-  // console.log("selectedItems.entries.length", selectedItems.size);
+  // validating phone number
+
+  function isValidPhoneNumber(data) {
+    // Check if the input is a string and exactly 10 characters long
+    if (typeof data !== "string" || data.length !== 10) {
+      return false;
+    }
+
+    // Check if every character in the string is a digit (0-9)
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] < "0" || data[i] > "9") {
+        return false; // Found a non-digit character
+      }
+    }
+
+    // If all characters are digits and the length is exactly 10, return true
+    return true;
+  }
 
   const onFinish = (values) => {
     if (selectedItems.size !== 0) {
@@ -147,7 +181,18 @@ const IncompleteOrders = () => {
       setIsLoading(false);
       // setNewCustomerName(values.name);
       // setNewCustomerPhone(values.phone);
-      prepareToSaveToFirebase(values.name, values.phone);
+      const isValidPhone = isValidPhoneNumber(values.phone);
+      // const truncatedPhone= values.phone.slice(0, 10);
+      if (isValidPhone) {
+        prepareToSaveToFirebase(values.name, values.phone);
+      } else {
+        // show error
+        openNotificationWithIcon(
+          "error",
+          "Error",
+          <FormattedMessage id="wrongPhoneNumber" />
+        );
+      }
     } else {
       setDressTypeError(true);
     }
@@ -269,15 +314,8 @@ const IncompleteOrders = () => {
     return `${day}/${month}/${year}`;
   };
 
-  const onFinish2Form = (values) => {
+  const onFinish2Form = async (values) => {
     console.log("Items", values);
-    // name
-    
-    // phone
-
-    // gender
-
-    // shirt details
 
     //  dates
     const dueDate = getDate(values.dueDate);
@@ -289,20 +327,89 @@ const IncompleteOrders = () => {
     const remainingAmt = values.remaining;
 
     // if Shirt
-    const len = values.length;
-    const chest = values.chest;
-    const weist = values.waist;
-    const shoulder = values.shoulder;
-    const collar = values.collar;
-    const lengthOfHand = values.lengthOfHand;
-    const handFourSide = values.handFourSide;
-    const wrist = values.wrist;
-    const hip = values.hip;
+    const length = {
+      length: values.length,
+      lengthSize: lengthSize,
+    };
 
-    // sizes 
+    const chest = {
+      chest: values.chest,
+      chestSize: chestSize,
+    };
 
-    
+    const weist = {
+      weist: values.waist,
+      weistSize: weistSize,
+    };
+
+    const shoulder = {
+      shoulder: values.shoulder,
+      shoulderSize: shoulderSize,
+    };
+
+    const collar = {
+      collar: values.collar,
+      collarSize: collarSize,
+    };
+
+    const lengthOfHand = {
+      lengthOfHand: values.lengthOfHand,
+      lengthOfHandSize: lengthOfHandSize,
+    };
+
+    const handFourSide = {
+      handFourSide: values.handFourSide,
+      handFourSideSize: handFourSideSize,
+    };
+
+    const wrist = {
+      wrist: values.wrist,
+      wriestSize: wriestSize,
+    };
+
+    const hip = {
+      hip: values.hip,
+      hipSize: hipSize,
+    };
+
     // save data to firebase storage
+    // const docRef = collection(db, "Users");
+    try {
+      await addDoc(collection(db, "Users"), {
+        // first page details
+        customerName,
+        customerPhone,
+        customerGender,
+        customerShirtDetails,
+        // other page details
+        dueDate,
+        dueDateRemeber,
+        totalAmt,
+        advanceAmt,
+        remainingAmt,
+        length,
+        chest,
+        weist,
+        shoulder,
+        collar,
+        lengthOfHand,
+        handFourSide,
+        wrist,
+        hip,
+      });
+
+      openNotificationWithIcon(
+        "success",
+        "Success",
+        <FormattedMessage id="addedNewRecord" />
+      );
+    } catch (e) {
+      openNotificationWithIcon(
+        "error",
+        "Error",
+        <FormattedMessage id="errorAddingNewRecord" />
+      );
+    }
 
     // get the data from storage to homescreen
     // make it live and fix camera issue save image etc
@@ -339,313 +446,328 @@ const IncompleteOrders = () => {
     // dispatch(setHipSizeState(hipSize));
   };
 
+  const contextValue = useMemo(
+    () => ({
+      name: "Ant Design",
+    }),
+    []
+  );
+
   return (
-    <>
-      <Col>
-        <Row>
-          <FormattedMessage id="noRecords" />
-        </Row>
-      </Col>
-      <FloatButton
-        onClick={showModal}
-        shape="circle"
-        type="primary"
-        tooltip={<FormattedMessage id="addUser" />}
-        style={{
-          right: 24,
-        }}
-        icon={<UserAddOutlined />}
-      />
-      <Modal
-        title={
-          isNewCustomerDetails ? (
-            <Row justify={"space-between"}>
-              <ArrowLeftOutlined
-                onClick={() => setIsNewCustomerDetails(false)}
-              />
-              <Row justify={"center"} align={"middle"}>
-                <Text style={{ fontSize: "11px" }}>{`${customerName} - `}</Text>
-                <Text style={{ fontSize: "11px" }}>{"(0001)"}</Text>
-              </Row>
-
-              <CloseOutlined onClick={onCancle} />
-            </Row>
-          ) : (
-            <FormattedMessage id="newCustomer" />
-          )
-        }
-        open={isAddingCustomer}
-        // onOk={handleOk}
-        closable={false}
-        footer={null}
-        width={300}
-      >
+    <Context.Provider value={contextValue}>
+      {contextHolder}
+      <>
         <Col>
-          <ConfigProvider
-            theme={{
-              components: {
-                Form: {
-                  labelColor: "#000000",
-                },
-              },
-            }}
-          >
-            {isNewCustomerDetails ? (
-              <Form
-                // ref={formRef}
-                name="onFinish2Form"
-                // className="login-form"
-                onFinish={onFinish2Form}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-              >
-                <ImageSection />
-                <NameSection />
-                <ShirtSection getDetails={getDetails} />
-                <Row justify={"space-around"}>
-                  <Form.Item>
-                    <Button
-                      type="default"
-                      // htmlType="submit"
-                      style={{ marginTop: "20px" }}
-                    >
-                      <Text>Invoice</Text>
-                    </Button>
-                  </Form.Item>
-
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{ marginTop: "20px" }}
-                    >
-                      <Text style={{ color: "#FFFFFF" }}>Save</Text>
-                    </Button>
-                  </Form.Item>
+          <Row>
+            <FormattedMessage id="noRecords" />
+          </Row>
+        </Col>
+        <FloatButton
+          onClick={showModal}
+          shape="circle"
+          type="primary"
+          tooltip={<FormattedMessage id="addUser" />}
+          style={{
+            right: 24,
+          }}
+          icon={<UserAddOutlined />}
+        />
+        <Modal
+          title={
+            isNewCustomerDetails ? (
+              <Row justify={"space-between"}>
+                <ArrowLeftOutlined
+                  onClick={() => setIsNewCustomerDetails(false)}
+                />
+                <Row justify={"center"} align={"middle"}>
+                  <Text
+                    style={{ fontSize: "11px" }}
+                  >{`${customerName} - `}</Text>
+                  <Text style={{ fontSize: "11px" }}>{"(0001)"}</Text>
                 </Row>
-              </Form>
+
+                <CloseOutlined onClick={onCancle} />
+              </Row>
             ) : (
-              <Form
-                ref={formRef}
-                name="loginForm"
-                className="login-form"
-                onFinish={onFinish}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-              >
-                <Form.Item
-                  labelAlign="left"
-                  // label=<FormattedMessage id="name" />
-                  name="name"
-                  rules={[
-                    {
-                      required: true,
-                      message: <FormattedMessage id="enterName" />,
-                    },
-                  ]}
+              <Row justify={"space-between"}>
+                <FormattedMessage id="newCustomer" />
+                <CloseOutlined onClick={onCancle} />
+              </Row>
+            )
+          }
+          open={isAddingCustomer}
+          // onOk={handleOk}
+          closable={false}
+          footer={null}
+          width={300}
+        >
+          <Col>
+            <ConfigProvider
+              theme={{
+                components: {
+                  Form: {
+                    labelColor: "#000000",
+                  },
+                },
+              }}
+            >
+              {isNewCustomerDetails ? (
+                <Form
+                  // ref={formRef}
+                  name="onFinish2Form"
+                  // className="login-form"
+                  onFinish={onFinish2Form}
+                  labelCol={{ span: 8 }}
+                  wrapperCol={{ span: 16 }}
                 >
-                  <Input placeholder="ग्राहकाचे नाव" />
-                </Form.Item>
+                  <ImageSection />
+                  <NameSection />
+                  <ShirtSection getDetails={getDetails} />
+                  <Row justify={"space-around"}>
+                    <Form.Item>
+                      <Button
+                        type="default"
+                        // htmlType="submit"
+                        style={{ marginTop: "20px" }}
+                      >
+                        <Text>Invoice</Text>
+                      </Button>
+                    </Form.Item>
 
-                <Form.Item
-                  labelAlign="left"
-                  // label=<FormattedMessage id="phone" />
-                  name="phone"
-                  rules={[
-                    {
-                      required: true,
-                      message: <FormattedMessage id="enterPhone" />,
-                    },
-                  ]}
+                    <Form.Item>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        style={{ marginTop: "20px" }}
+                      >
+                        <Text style={{ color: "#FFFFFF" }}>Save</Text>
+                      </Button>
+                    </Form.Item>
+                  </Row>
+                </Form>
+              ) : (
+                <Form
+                  ref={formRef}
+                  name="loginForm"
+                  className="login-form"
+                  onFinish={onFinish}
+                  labelCol={{ span: 8 }}
+                  wrapperCol={{ span: 16 }}
                 >
-                  <Input placeholder="फोन" />
-                </Form.Item>
+                  <Form.Item
+                    labelAlign="left"
+                    // label=<FormattedMessage id="name" />
+                    name="name"
+                    rules={[
+                      {
+                        required: true,
+                        message: <FormattedMessage id="enterName" />,
+                      },
+                    ]}
+                  >
+                    <Input placeholder="ग्राहकाचे नाव" />
+                  </Form.Item>
 
-                <Radio.Group
-                  onChange={onChange}
-                  value={value}
-                  style={{ paddingTop: "10px" }}
-                >
-                  <Radio value={1}>
-                    <FormattedMessage id="men" />
-                  </Radio>
-                  <Radio value={2}>
-                    <FormattedMessage id="women" />
-                  </Radio>
-                </Radio.Group>
+                  <Form.Item
+                    labelAlign="left"
+                    // label=<FormattedMessage id="phone" />
+                    name="phone"
+                    rules={[
+                      {
+                        required: true,
+                        message: <FormattedMessage id="enterPhone" />,
+                      },
+                    ]}
+                  >
+                    <Input placeholder="फोन" maxLength={10} type="text" />
+                  </Form.Item>
 
-                {/* {dressTypeError && (
+                  <Radio.Group
+                    onChange={onChange}
+                    value={value}
+                    style={{ paddingTop: "10px" }}
+                  >
+                    <Radio value={1}>
+                      <FormattedMessage id="men" />
+                    </Radio>
+                    <Radio value={2}>
+                      <FormattedMessage id="women" />
+                    </Radio>
+                  </Radio.Group>
+
+                  {/* {dressTypeError && (
                 <Text style={{ color: "#000000" }}>
                   <FormattedMessage id="dressType" />
                 </Text>
               )} */}
 
-                <div style={{ width: "100%", overflowX: "auto" }}>
-                  <List
-                    style={{ whiteSpace: "nowrap" }}
-                    dataSource={data}
-                    renderItem={(item) => (
-                      <List.Item
-                        style={{
-                          display: "inline-block",
-                          marginRight: "8px",
-                          // paddingBottom: "0px",
-                        }}
-                      >
-                        <Card
-                          // title="QTY"
+                  <div style={{ width: "100%", overflowX: "auto" }}>
+                    <List
+                      style={{ whiteSpace: "nowrap" }}
+                      dataSource={data}
+                      renderItem={(item) => (
+                        <List.Item
                           style={{
-                            width: 150,
-                            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-                            backgroundColor: "#88b3f0",
-                            cursor: "pointer",
-                            // paddingBottom: "10px",
-                            height: "200px",
-                            padding: "0px",
-
-                            border:
-                              selectedItems.has(item.title.props.id) &&
-                              "3px solid #1677ff",
+                            display: "inline-block",
+                            marginRight: "8px",
+                            // paddingBottom: "0px",
                           }}
                         >
-                          <Row
-                            align="middle"
-                            onClick={() => selectItem(item.title)}
+                          <Card
+                            // title="QTY"
+                            style={{
+                              width: 150,
+                              boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                              backgroundColor: "#88b3f0",
+                              cursor: "pointer",
+                              // paddingBottom: "10px",
+                              height: "200px",
+                              padding: "0px",
+
+                              border:
+                                selectedItems.has(item.title.props.id) &&
+                                "3px solid #1677ff",
+                            }}
                           >
-                            <Col
-                              span={24}
-                              style={{
-                                textAlign: "center",
-                                paddingTop: "10px",
-                              }}
+                            <Row
+                              align="middle"
+                              onClick={() => selectItem(item.title)}
                             >
-                              {!selectedItems.has(item.title.props.id) ? (
-                                <Avatar
-                                  shape="circle"
-                                  size={64}
-                                  src={item.image}
-                                />
-                              ) : (
-                                <Avatar
-                                  shape="circle"
-                                  size={64}
-                                  icon={
-                                    <CheckCircleOutlined
-                                      style={{ color: "#000" }}
-                                    />
-                                  }
-                                />
-                              )}
-                            </Col>
-                            <Col span={24}>
-                              <Row justify="center">
-                                <Text
-                                  style={{ color: "#000000", fontSize: 20 }}
-                                >
-                                  {item.title}
-                                </Text>
-                              </Row>
-                            </Col>
-                          </Row>
-                          <Row>
-                            {
                               <Col
                                 span={24}
                                 style={{
-                                  visibility:
-                                    !selectedItems.has(item.title.props.id) &&
-                                    "hidden",
+                                  textAlign: "center",
+                                  paddingTop: "10px",
                                 }}
                               >
-                                <Row justify={"center"} align={"middle"}>
-                                  <Col
-                                    onClick={() =>
-                                      changeCount(false, item.title.props.id)
+                                {!selectedItems.has(item.title.props.id) ? (
+                                  <Avatar
+                                    shape="circle"
+                                    size={64}
+                                    src={item.image}
+                                  />
+                                ) : (
+                                  <Avatar
+                                    shape="circle"
+                                    size={64}
+                                    icon={
+                                      <CheckCircleOutlined
+                                        style={{ color: "#000" }}
+                                      />
                                     }
-                                  >
-                                    <LeftSquareOutlined
-                                      style={{
-                                        fontSize: "20px",
-                                        color: "#000",
-                                      }}
-                                    />
-                                  </Col>
+                                  />
+                                )}
+                              </Col>
+                              <Col span={24}>
+                                <Row justify="center">
                                   <Text
-                                    style={{
-                                      marginLeft: "10px",
-                                      marginRight: "10px",
-                                      fontSize: "20px",
-                                      color: "#000",
-                                    }}
+                                    style={{ color: "#000000", fontSize: 20 }}
                                   >
-                                    {item.title.props.id === "shirt"
-                                      ? toggleCountShirt
-                                      : toggleCountPant}
+                                    {item.title}
                                   </Text>
-                                  <Col
-                                    onClick={() =>
-                                      changeCount(true, item.title.props.id)
-                                    }
-                                  >
-                                    <RightSquareOutlined
-                                      style={{
-                                        fontSize: "20px",
-                                        color: "#000",
-                                      }}
-                                    />
-                                  </Col>
                                 </Row>
                               </Col>
-                            }
-                          </Row>
-                        </Card>
-                      </List.Item>
-                    )}
-                  />
-                  <Row>
-                    <Col xs={24}>
-                      {selectedItems.size === 0 && dressTypeError && (
-                        <Row>
-                          <Text
-                            style={{
-                              fontSize: "18px",
-                              color: "#ff4d4f",
-                              marginInlineEnd: "4px",
-                            }}
-                          >
-                            *
-                          </Text>
-                          <Text
-                            style={{
-                              color: "#ff4d4f",
-                              marginInlineEnd: "4px",
-                            }}
-                          >
-                            <FormattedMessage id="dressType" />
-                          </Text>
-                        </Row>
+                            </Row>
+                            <Row>
+                              {
+                                <Col
+                                  span={24}
+                                  style={{
+                                    visibility:
+                                      !selectedItems.has(item.title.props.id) &&
+                                      "hidden",
+                                  }}
+                                >
+                                  <Row justify={"center"} align={"middle"}>
+                                    <Col
+                                      onClick={() =>
+                                        changeCount(false, item.title.props.id)
+                                      }
+                                    >
+                                      <LeftSquareOutlined
+                                        style={{
+                                          fontSize: "20px",
+                                          color: "#000",
+                                        }}
+                                      />
+                                    </Col>
+                                    <Text
+                                      style={{
+                                        marginLeft: "10px",
+                                        marginRight: "10px",
+                                        fontSize: "20px",
+                                        color: "#000",
+                                      }}
+                                    >
+                                      {item.title.props.id === "shirt"
+                                        ? toggleCountShirt
+                                        : toggleCountPant}
+                                    </Text>
+                                    <Col
+                                      onClick={() =>
+                                        changeCount(true, item.title.props.id)
+                                      }
+                                    >
+                                      <RightSquareOutlined
+                                        style={{
+                                          fontSize: "20px",
+                                          color: "#000",
+                                        }}
+                                      />
+                                    </Col>
+                                  </Row>
+                                </Col>
+                              }
+                            </Row>
+                          </Card>
+                        </List.Item>
                       )}
-                    </Col>
-                  </Row>
-                </div>
+                    />
+                    <Row>
+                      <Col xs={24}>
+                        {selectedItems.size === 0 && dressTypeError && (
+                          <Row>
+                            <Text
+                              style={{
+                                fontSize: "18px",
+                                color: "#ff4d4f",
+                                marginInlineEnd: "4px",
+                              }}
+                            >
+                              *
+                            </Text>
+                            <Text
+                              style={{
+                                color: "#ff4d4f",
+                                marginInlineEnd: "4px",
+                              }}
+                            >
+                              <FormattedMessage id="dressType" />
+                            </Text>
+                          </Row>
+                        )}
+                      </Col>
+                    </Row>
+                  </div>
 
-                <Row justify={"center"}>
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      style={{ marginTop: "20px" }}
-                    >
-                      <FormattedMessage id="next" />
-                    </Button>
-                  </Form.Item>
-                </Row>
-              </Form>
-            )}
-          </ConfigProvider>
-        </Col>
-      </Modal>
-    </>
+                  <Row justify={"center"}>
+                    <Form.Item>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        style={{ marginTop: "20px" }}
+                      >
+                        <FormattedMessage id="next" />
+                      </Button>
+                    </Form.Item>
+                  </Row>
+                </Form>
+              )}
+            </ConfigProvider>
+          </Col>
+        </Modal>
+      </>
+    </Context.Provider>
   );
 };
 export default IncompleteOrders;

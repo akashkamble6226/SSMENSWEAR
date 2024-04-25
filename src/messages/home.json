@@ -47,7 +47,10 @@
   "hip":"हिप",
   "pockets":"पॉकेट संख्या",
   "enterDate": "कृपया तारीख टाका",
-  "enterCost": "रक्कम"  
+  "enterCost": "रक्कम",
+  "addedNewRecord": "नवीन ग्राहक जोडले!",
+  "errorAddingNewRecord": "नवीन ग्राहक जोडले जाऊ शकत नाही!",
+  "wrongPhoneNumber":"फोन नंबर चुकला आहे!"
 
 
 

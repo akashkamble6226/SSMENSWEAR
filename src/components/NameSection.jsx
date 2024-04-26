@@ -12,8 +12,41 @@ const NameSection = (getDateCost) => {
 
   // save the date and cost info to the slice
   // if(dueDate && setDueDate ) {
-    
+
   // }
+
+  const [totalAmt, setTotalAmt] = useState(0);
+  const [advanceAmt, setAdvanceAmt] = useState(0);
+  const [remainingAmt, setRemainingAmt] = useState(0);
+
+  const saveAmount = (amt) => {
+    const value = parseFloat(amt.target.value);
+    if (value) {
+      // console.log(value);
+      // console.log("totalAmt",totalAmt );
+      setTotalAmt(value);
+      // calculateRemaining(value);
+    }
+  };
+
+  const saveAdvanceAmt = (amt) => {
+    const value = parseFloat(amt.target.value);
+    if(value){
+      setAdvanceAmt(value);
+      // console.log(value);
+      // calculateRemaining(totalAmt, value);
+      calculateRemaining();
+    }
+   
+  };
+
+  const calculateRemaining = () => {
+    console.log("totalAmt", totalAmt);
+    console.log("advanceAmt", advanceAmt);
+    // const remaining = totalAmt - advanceAmt;
+   
+    // setRemainingAmt(remaining);
+  };
   return (
     <>
       <Col
@@ -155,7 +188,7 @@ const NameSection = (getDateCost) => {
                     },
                   ]}
                 >
-                  <Input placeholder="0" />
+                  <Input placeholder="0" onChange={saveAmount} />
                 </Form.Item>
               </Col>
             </Row>
@@ -179,7 +212,7 @@ const NameSection = (getDateCost) => {
                     },
                   ]}
                 >
-                  <Input placeholder="0" />
+                  <Input placeholder="0" onChange={saveAdvanceAmt} />
                 </Form.Item>
               </Col>
             </Row>
@@ -203,7 +236,7 @@ const NameSection = (getDateCost) => {
                     },
                   ]}
                 >
-                  <Input placeholder="0" />
+                  <Input placeholder="0" value={remainingAmt} />
                 </Form.Item>
               </Col>
             </Row>

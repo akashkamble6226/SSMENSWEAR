@@ -7,22 +7,36 @@ import { useState } from "react";
 const { Text } = Typography;
 
 const ImageSection = () => {
-  const [stream, setStream] = useState(null);
+  const [selectedClientImage, setSelectedClientImage] = useState(null);
+  const [selectedClothImage, setSelectedClothImage] = useState(null);
   // open camera
 
-  const openCamera = async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
-      setStream(mediaStream);
-      console.log(stream);
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-    }
+  const handleClientImageCapture = async (event) => {
+    event.preventDefault();
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+
+    // Display the selected image with lower resolution
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setSelectedClientImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClothImageCapture = async (event) => {
+    event.preventDefault();
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+
+    // Display the selected image with lower resolution
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setSelectedClothImage(e.target.result);
+    };
+    reader.readAsDataURL(file);
   };
   return (
-    
     <>
       <Col
         style={{
@@ -33,18 +47,30 @@ const ImageSection = () => {
           height: "150px",
         }}
       >
-     
         <Row justify="space-around" align={"middle"}>
           <Col
             style={{
               width: "100px",
               height: "100px",
-              backgroundColor: "#A3A3A3",
+              backgroundColor: !selectedClientImage && "#A3A3A3",
               borderRadius: "50%",
             }}
-            onClick={openCamera}
+            onClick={() => document.getElementById("fileInput").click()}
           >
-            <Image src={user} preview={false} />
+            <Image
+              src={selectedClientImage ? selectedClientImage : user}
+              preview={false}
+              width={100}
+              style={{ display: "flex", justifyContent: "center" }}
+            />
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleClientImageCapture}
+              style={{ display: "none" }}
+            />
             <Text
               style={{
                 display: "flex",
@@ -59,12 +85,25 @@ const ImageSection = () => {
             style={{
               width: "100px",
               height: "100px",
-              backgroundColor: "#A3A3A3",
+              backgroundColor: !selectedClothImage && "#A3A3A3",
               borderRadius: "50%",
             }}
-            onClick={openCamera}
+            onClick={() => document.getElementById("fileInput2").click()}
           >
-            <Image src={cloth} preview={false} />
+            <Image
+              src={selectedClothImage ? selectedClothImage : cloth}
+              preview={false}
+              width={100}
+              style={{ display: "flex", justifyContent: "center" }}
+            />
+            <input
+              id="fileInput2"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleClothImageCapture}
+              style={{ display: "none" }}
+            />
             <Text
               style={{
                 display: "flex",

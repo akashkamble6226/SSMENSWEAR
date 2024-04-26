@@ -40,34 +40,6 @@ import {
 import ImageSection from "../components/ImageSection";
 import NameSection from "../components/NameSection";
 import ShirtSection from "../components/ShirtSection";
-import {
-  setAdvanceAmount,
-  setDeliveryDate,
-  setDueDate,
-  setLength,
-  setRemainingAmount,
-  setTotalAmt,
-  setPocketCountState,
-  setCollarTypeState,
-  setChest,
-  setLengthState,
-  setLengthSizeState,
-  setChestSizeState,
-  setWeist,
-  setWeistSizeState,
-  setShoulder,
-  setShoulderSizeState,
-  setCollar,
-  setCollarSizeState,
-  setLengthOfHand,
-  setLengthOfHandSizeState,
-  setHandFourSide,
-  setHandFourSideSizeState,
-  setWrist,
-  setHip,
-  setHipSizeState,
-  setWristSizeState,
-} from "../store/newCustomerSliceNext";
 import { db } from "../firebase";
 import { addDoc, collection } from "firebase/firestore";
 const { Text } = Typography;
@@ -411,9 +383,9 @@ const IncompleteOrders = () => {
 
     // dispatch(setDeliveryDate(dueDate));
     // dispatch(setDueDate(dueDateRemeber));
-    // dispatch(setTotalAmt(totalAmt));
-    // dispatch(setAdvanceAmount(advanceAmt));
-    // dispatch(setRemainingAmount(remainingAmt));
+    dispatch(setTotalAmt(totalAmt));
+    dispatch(setAdvanceAmount(advanceAmt));
+    dispatch(setRemainingAmount(remainingAmt));
     // dispatch(setCollarTypeState(collarType));
     // dispatch(setPocketCountState(pocketsSize));
 
@@ -448,7 +420,7 @@ const IncompleteOrders = () => {
     <Context.Provider value={contextValue}>
       {contextHolder}
       <>
-        <Col>
+        <Col style={{ padding: "10px" }}>
           <Row>
             <FormattedMessage id="noRecords" />
           </Row>
@@ -490,7 +462,7 @@ const IncompleteOrders = () => {
           // onOk={handleOk}
           closable={false}
           footer={null}
-          width={300}
+          width={350}
         >
           <Col>
             <ConfigProvider

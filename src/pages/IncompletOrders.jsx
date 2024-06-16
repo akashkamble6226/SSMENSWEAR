@@ -40,8 +40,14 @@ import {
 import ImageSection from "../components/ImageSection";
 import NameSection from "../components/NameSection";
 import ShirtSection from "../components/ShirtSection";
-import { db } from "../firebase";
-import { addDoc, collection } from "firebase/firestore";
+import { db, storage } from "../firebase";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import {
+  setAdvanceAmount,
+  setRemainingAmount,
+  setTotalAmt,
+} from "../store/newCustomerSliceNext";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 const { Text } = Typography;
 
 const Context = React.createContext({
@@ -82,6 +88,9 @@ const IncompleteOrders = () => {
   const customerShirtDetails = useSelector(
     (state) => state.newCustomerRecord.shirt
   );
+
+  const [selectedClientImage, setSelectedClientImage] = useState(null);
+  const [selectedClothImage, setSelectedClothImage] = useState(null);
 
   // useEffect(() => {
 
@@ -269,12 +278,30 @@ const IncompleteOrders = () => {
     setHipSize(hipSize);
   };
 
+  const getImages = (clientImage, clothImage) => {
+    console.log(clientImage);
+    setSelectedClientImage(clientImage);
+    setSelectedClothImage(clothImage);
+  };
+
   const getDate = (obj) => {
     const date = new Date(obj); // Create a Date object from the date string
     const day = date.getDate().toString().padStart(2, "0"); // Get day and pad with leading zero if necessary
     const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Get month (zero-based index) and pad with leading zero if necessary
     const year = date.getFullYear(); // Get full year (4 digits)
     return `${day}/${month}/${year}`;
+  };
+
+  const convertToBlobObject = (image) => {
+    // Convert base64 string to Blob object
+    const byteCharacters = atob(image.split(",")[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/jpeg" });
+    return blob;
   };
 
   const onFinish2Form = async (values) => {
@@ -287,7 +314,7 @@ const IncompleteOrders = () => {
     // amount
     const totalAmt = values.totalAmount;
     const advanceAmt = values.advance;
-    const remainingAmt = values.remaining;
+    const remainingAmt = totalAmt - advanceAmt;
 
     // if Shirt
     const length = {
@@ -335,10 +362,38 @@ const IncompleteOrders = () => {
       hipSize: hipSize,
     };
 
-    // save data to firebase storage
-    // const docRef = collection(db, "Users");
+    // for storing images
     try {
-      await addDoc(collection(db, "Users"), {
+      for (let i = 0; i <= 1; i++) {
+        let currentImage, currentFolderName;
+        if (i === 0) {
+          currentImage = selectedClientImage;
+          currentFolderName = "customerImages";
+        } else {
+          currentImage = selectedClothImage;
+          currentFolderName = "clothImages";
+        }
+        const blob = convertToBlobObject(currentImage);
+        const imageRef = ref(storage, `${currentFolderName}/${customerPhone}`);
+
+        uploadBytes(imageRef, blob).then((snapshot) => {
+          getDownloadURL(snapshot.ref)
+            .then((url) => {
+              console.log(url);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    try {
+      // saving customer material data
+      const customerRef = doc(db, "Customers", customerPhone);
+      await setDoc(customerRef, {
         // first page details
         customerName,
         customerPhone,
@@ -383,9 +438,9 @@ const IncompleteOrders = () => {
 
     // dispatch(setDeliveryDate(dueDate));
     // dispatch(setDueDate(dueDateRemeber));
-    dispatch(setTotalAmt(totalAmt));
-    dispatch(setAdvanceAmount(advanceAmt));
-    dispatch(setRemainingAmount(remainingAmt));
+    // dispatch(setTotalAmt(totalAmt));
+    // dispatch(setAdvanceAmount(advanceAmt));
+    // dispatch(setRemainingAmount(remainingAmt));
     // dispatch(setCollarTypeState(collarType));
     // dispatch(setPocketCountState(pocketsSize));
 
@@ -483,7 +538,7 @@ const IncompleteOrders = () => {
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 16 }}
                 >
-                  <ImageSection />
+                  <ImageSection getImages={getImages} />
                   <NameSection />
                   <ShirtSection getDetails={getDetails} />
                   <Row justify={"space-around"}>
@@ -515,11 +570,10 @@ const IncompleteOrders = () => {
                   className="login-form"
                   onFinish={onFinish}
                   labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 16 }}
+                  wrapperCol={{ span: 24 }}
                 >
                   <Form.Item
                     labelAlign="left"
-                    // label=<FormattedMessage id="name" />
                     name="name"
                     rules={[
                       {
@@ -533,7 +587,6 @@ const IncompleteOrders = () => {
 
                   <Form.Item
                     labelAlign="left"
-                    // label=<FormattedMessage id="phone" />
                     name="phone"
                     rules={[
                       {
@@ -548,7 +601,7 @@ const IncompleteOrders = () => {
                   <Radio.Group
                     onChange={onChange}
                     value={value}
-                    style={{ paddingTop: "10px" }}
+                    style={{ paddingTop: "5px", paddingBottom: "10px" }}
                   >
                     <Radio value={1}>
                       <FormattedMessage id="men" />

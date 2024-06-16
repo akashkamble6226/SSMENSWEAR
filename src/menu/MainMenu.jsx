@@ -33,8 +33,8 @@ export default function MainMenu() {
     setCurrent(e.key);
   };
   return (
-    <Row align="middle" style={{ backgroundColor: "#071C2D" }}>
-      <Col span={16}>
+    <Row style={{ backgroundColor: "#071C2D" }} align={"middle"}>
+      <Col flex={"auto"} >
         <Menu
           onClick={onClick}
           selectedKeys={[current]}
@@ -50,7 +50,7 @@ export default function MainMenu() {
       >
         <FormattedMessage id="storeName" />
       </Col> */}
-      <Col span={4}>
+      <Col style={{paddingRight:"10px"}}>
         <Row>
           <Button
             type="primary"

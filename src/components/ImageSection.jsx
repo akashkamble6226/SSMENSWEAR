@@ -2,11 +2,11 @@ import { Col, Row, Typography, Image } from "antd";
 import { FormattedMessage } from "react-intl";
 import user from "../assets/user.png";
 import cloth from "../assets/cloth.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const { Text } = Typography;
 
-const ImageSection = () => {
+const ImageSection = ({ getImages }) => {
   const [selectedClientImage, setSelectedClientImage] = useState(null);
   const [selectedClothImage, setSelectedClothImage] = useState(null);
   // open camera
@@ -19,10 +19,17 @@ const ImageSection = () => {
     // Display the selected image with lower resolution
     const reader = new FileReader();
     reader.onload = (e) => {
+      console.log("e", e);
       setSelectedClientImage(e.target.result);
     };
     reader.readAsDataURL(file);
   };
+
+  useEffect(() => {
+    if (selectedClientImage && selectedClothImage) {
+      getImages(selectedClientImage, selectedClothImage);
+    }
+  }, [selectedClientImage, selectedClothImage]);
 
   const handleClothImageCapture = async (event) => {
     event.preventDefault();
@@ -36,6 +43,7 @@ const ImageSection = () => {
     };
     reader.readAsDataURL(file);
   };
+
   return (
     <>
       <Col

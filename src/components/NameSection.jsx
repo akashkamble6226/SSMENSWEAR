@@ -2,51 +2,21 @@ import { Col, Row, Typography, Input, Form, DatePicker } from "antd";
 import { FormattedMessage } from "react-intl";
 
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const { Text } = Typography;
 
 const NameSection = (getDateCost) => {
-  // const [datesData, setDatesData] = useState(new Set());
-  // const [dueDate, setDueDate] = useState(null);
-  // const [dueDateRemember, setDueDateRemember] = useState(null);
-
-  // save the date and cost info to the slice
-  // if(dueDate && setDueDate ) {
-
-  // }
-
   const [totalAmt, setTotalAmt] = useState(0);
   const [advanceAmt, setAdvanceAmt] = useState(0);
-  const [remainingAmt, setRemainingAmt] = useState(0);
-
-  const saveAmount = (amt) => {
-    const value = parseFloat(amt.target.value);
-    if (value) {
-      // console.log(value);
-      // console.log("totalAmt",totalAmt );
-      setTotalAmt(value);
-      // calculateRemaining(value);
-    }
-  };
-
-  const saveAdvanceAmt = (amt) => {
-    const value = parseFloat(amt.target.value);
-    if(value){
-      setAdvanceAmt(value);
-      // console.log(value);
-      // calculateRemaining(totalAmt, value);
-      calculateRemaining();
-    }
-   
-  };
 
   const calculateRemaining = () => {
     console.log("totalAmt", totalAmt);
     console.log("advanceAmt", advanceAmt);
-    // const remaining = totalAmt - advanceAmt;
-   
-    // setRemainingAmt(remaining);
+    const remaining = totalAmt - advanceAmt;
+    return remaining;
   };
+
   return (
     <>
       <Col
@@ -188,7 +158,12 @@ const NameSection = (getDateCost) => {
                     },
                   ]}
                 >
-                  <Input placeholder="0" onChange={saveAmount} />
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={totalAmt}
+                    onChange={(e) => setTotalAmt(parseInt(e.target.value))}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -212,7 +187,12 @@ const NameSection = (getDateCost) => {
                     },
                   ]}
                 >
-                  <Input placeholder="0" onChange={saveAdvanceAmt} />
+                  <Input
+                    placeholder="0"
+                    type="number"
+                    value={advanceAmt}
+                    onChange={(e) => setAdvanceAmt(parseInt(e.target.value))}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -224,7 +204,7 @@ const NameSection = (getDateCost) => {
                 </Text>
               </Col>
               <Col span={6}>
-                <Form.Item
+                {/* <Form.Item
                   labelAlign="left"
                   noStyle={true}
                   // label=<FormattedMessage id="phone" />
@@ -235,9 +215,9 @@ const NameSection = (getDateCost) => {
                       message: <FormattedMessage id="enterCost" />,
                     },
                   ]}
-                >
-                  <Input placeholder="0" value={remainingAmt} />
-                </Form.Item>
+                > */}
+                  <Input type="number" placeholder={calculateRemaining()} readOnly />
+                {/* </Form.Item> */}
               </Col>
             </Row>
           </Col>

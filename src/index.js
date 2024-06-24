@@ -6,9 +6,8 @@ import reportWebVitals from "./reportWebVitals";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
 import { IntlProvider } from "react-intl";
-import messages from "../src/messages/home.json";
+import messages from "../src/lang/home.json";
 import { ConfigProvider } from "antd";
-import marathiLocale from "./localization/mr_IN";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

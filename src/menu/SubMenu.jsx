@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Row, Tabs } from "antd";
+import { Col, Row, Tabs } from "antd";
 import { FormattedMessage } from "react-intl";
 import IncompleteOrders from "../pages/IncompletOrders";
 import CompleteOrders from "../pages/CompleteOrders";
@@ -18,8 +18,10 @@ const SubMenu = () => {
     },
   ];
   return (
-    <Row >
-      <Tabs defaultActiveKey="1" size="large" items={items}  />
+    <Row>
+      <Col span={24}>
+        <Tabs defaultActiveKey="1" size="large" items={items} />
+      </Col>
     </Row>
   );
 };

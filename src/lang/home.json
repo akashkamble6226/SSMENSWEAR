@@ -50,7 +50,11 @@
   "enterCost": "रक्कम",
   "addedNewRecord": "नवीन ग्राहक जोडले!",
   "errorAddingNewRecord": "नवीन ग्राहक जोडले जाऊ शकत नाही!",
-  "wrongPhoneNumber":"फोन नंबर चुकला आहे!"
+  "wrongPhoneNumber":"फोन नंबर चुकला आहे!",
+  "addingPhotoError": "फोटो save करू शकत नाहीत!",
+  "completed":"पुर्ण",
+  "deliveryDateRemaining":"डीलीवरीसाठी दिवस बाकी",
+  "imagesError": "कृपया कपड्याचा व ग्राहकाचा फोन क्रमांन्क टाका."
 
 
 

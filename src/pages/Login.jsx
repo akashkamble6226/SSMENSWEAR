@@ -73,7 +73,7 @@ const Login = () => {
       openNotificationWithIcon("success", "Welcome", "Log in successful.");
       dispatch(setLoginStatus(true));
       // go to new page
-      navigate("/tailor");
+      navigate("/tailor/incompletOrders");
     } else {
       setIsLoading(false);
       openNotificationWithIcon("error", "Error", "Log in failed.");

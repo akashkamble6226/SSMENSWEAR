@@ -1,9 +1,6 @@
 import { Col, Row, Typography, Input, Form, DatePicker } from "antd";
 import { FormattedMessage } from "react-intl";
-
 import { useState } from "react";
-import { useSelector } from "react-redux";
-
 const { Text } = Typography;
 
 const NameSection = (getDateCost) => {
@@ -28,38 +25,6 @@ const NameSection = (getDateCost) => {
           // height: "150px",
         }}
       >
-        {/* name */}
-        {/* <Form.Item
-          labelAlign="left"
-          // label=<FormattedMessage id="name" />
-          name="name"
-          // noStyle={true}
-          rules={[
-            {
-              required: true,
-              message: <FormattedMessage id="enterName" />,
-            },
-          ]}
-        >
-          <Input placeholder="ग्राहकाचे नाव" />
-        </Form.Item> */}
-        {/* phone */}
-        {/* <Form.Item
-          labelAlign="left"
-          // noStyle={true}
-          // label=<FormattedMessage id="phone" />
-          name="phone"
-          rules={[
-            {
-              required: true,
-              message: <FormattedMessage id="enterPhone" />,
-            },
-          ]}
-        >
-          <Input placeholder="फोन" />
-        </Form.Item> */}
-        {/* customerId - dynamic genrated id */}
-
         {/* due date */}
 
         <Row align="middle">
@@ -116,11 +81,6 @@ const NameSection = (getDateCost) => {
             >
               <DatePicker
                 placeholder="तारीख निवडा"
-                // onChange={(dt, dateString) => {
-                //   const parts = dateString.split("-");
-                //   const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                //   setDueDateRemember(formattedDate);
-                // }}
               />
             </Form.Item>
           </Col>
@@ -149,7 +109,6 @@ const NameSection = (getDateCost) => {
                 <Form.Item
                   labelAlign="left"
                   noStyle={true}
-                  // label=<FormattedMessage id="phone" />
                   name="totalAmount"
                   rules={[
                     {
@@ -204,19 +163,11 @@ const NameSection = (getDateCost) => {
                 </Text>
               </Col>
               <Col span={6}>
-                {/* <Form.Item
-                  labelAlign="left"
-                  noStyle={true}
-                  // label=<FormattedMessage id="phone" />
-                  name="remaining"
-                  rules={[
-                    {
-                      required: true,
-                      message: <FormattedMessage id="enterCost" />,
-                    },
-                  ]}
-                > */}
-                  <Input type="number" placeholder={calculateRemaining()} readOnly />
+                <Input
+                  type="number"
+                  placeholder={calculateRemaining()}
+                  readOnly
+                />
                 {/* </Form.Item> */}
               </Col>
             </Row>

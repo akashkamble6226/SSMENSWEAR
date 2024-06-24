@@ -7,8 +7,6 @@ const Tailor = () => {
   return (
     <>
       <SubMenu />
-
-      
     </>
   );
 };

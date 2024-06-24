@@ -20,15 +20,12 @@ import {
   List,
   Card,
   Avatar,
-  notification,
+  Spin,
 } from "antd";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
-import styles from "./IncompletOrders.css";
 import shirt from "../assets/shirt.png";
 import pant from "../assets/pant.png";
-
-import Title from "antd/es/skeleton/Title";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setNewCustomerGender,
@@ -41,13 +38,20 @@ import ImageSection from "../components/ImageSection";
 import NameSection from "../components/NameSection";
 import ShirtSection from "../components/ShirtSection";
 import { db, storage } from "../firebase";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-import {
-  setAdvanceAmount,
-  setRemainingAmount,
-  setTotalAmt,
-} from "../store/newCustomerSliceNext";
+import { doc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getCustomersCount } from "../func/customerCount";
+import { totalCustomerCountStatus } from "../store/totalCustomerCountSlice";
+import { CustomerNameFormat } from "../func/customerNameFormatting";
+import Loader from "../components/Loader";
+import useNotification from "../customeHooks/Notification";
+import useLoader from "../customeHooks/Loader";
+import { isValidPhoneNumber } from "../func/phoneNumberValid";
+import useItemCount from "../customeHooks/ItemCount";
+import { getDate } from "../func/getDate";
+import useAllIncompletOrders from "../customeHooks/AllIncompleteOrders";
+import AllIncompleteOrders from "../components/AllIncompletOrders";
+import useAllCustomerImages from "../customeHooks/AllCustomerImages";
 const { Text } = Typography;
 
 const Context = React.createContext({
@@ -56,16 +60,38 @@ const Context = React.createContext({
 
 const IncompleteOrders = () => {
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
-  const [isloading, setIsLoading] = useState(false);
   const [value, setValue] = useState(1);
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [isNewCustomerDetails, setIsNewCustomerDetails] = useState(false);
-  const [api, contextHolder] = notification.useNotification();
-  const [toggleCountPant, setToggleCountPant] = useState(1);
-  const [toggleCountShirt, setToggleCountShirt] = useState(1);
+  const { openNotificationWithIcon, contextHolder } = useNotification();
+  const { spinning, setSpinning, percent, setPercent, showLoader } =
+    useLoader();
+  const {
+    changeCount,
+    toggleCountPant,
+    setToggleCountPant,
+    toggleCountShirt,
+    setToggleCountShirt,
+  } = useItemCount();
+  const { allInCompletOrdersData, loadingData } = useAllIncompletOrders();
+
+  const {
+    customerImageUrls,
+    loadingCustomerImages,
+    clothImageUrls,
+    loadingClothImages,
+  } = useAllCustomerImages();
+
+  
+
+  // console.log(
+  //   "customerImageUrls",
+  //   customerImageUrls,
+  //   "clothImageUrls",
+  //   clothImageUrls
+  // );
 
   const [dressTypeError, setDressTypeError] = useState(false);
-  // const [newCustomerPhone, setNewCustomerPhone] = useState("");
 
   // Shirt section states
   const [lengthSize, setLengthSize] = useState(0);
@@ -92,17 +118,17 @@ const IncompleteOrders = () => {
   const [selectedClientImage, setSelectedClientImage] = useState(null);
   const [selectedClothImage, setSelectedClothImage] = useState(null);
 
-  // useEffect(() => {
+  const totalCustCount = useSelector(
+    (state) => state.totalCustomerCount.totalCustomerCount
+  );
 
-  //   // save the name,phone,gender and shirt details to firebase
-
-  // }, []);
-  const openNotificationWithIcon = (type, msg, desc) => {
-    api[type]({
-      message: msg,
-      description: desc,
-    });
-  };
+  async function getCount() {
+    let count = await getCustomersCount();
+    dispatch(totalCustomerCountStatus(count));
+  }
+  useEffect(() => {
+    getCount();
+  }, [isAddingCustomer]);
 
   const formRef = useRef(null);
 
@@ -125,40 +151,12 @@ const IncompleteOrders = () => {
     setIsNewCustomerDetails(false);
   };
 
-  // validating phone number
-
-  function isValidPhoneNumber(data) {
-    // Check if the input is a string and exactly 10 characters long
-    if (typeof data !== "string" || data.length !== 10) {
-      return false;
-    }
-
-    // Check if every character in the string is a digit (0-9)
-    for (let i = 0; i < data.length; i++) {
-      if (data[i] < "0" || data[i] > "9") {
-        return false; // Found a non-digit character
-      }
-    }
-
-    // If all characters are digits and the length is exactly 10, return true
-    return true;
-  }
-
   const onFinish = (values) => {
     if (selectedItems.size !== 0) {
-      setIsLoading(true);
-      // Handle form submission here
-      console.log("Received values:", values.name, values.phone);
-      // login here
-      setIsLoading(false);
-      // setNewCustomerName(values.name);
-      // setNewCustomerPhone(values.phone);
       const isValidPhone = isValidPhoneNumber(values.phone);
-      // const truncatedPhone= values.phone.slice(0, 10);
       if (isValidPhone) {
         prepareToSaveToFirebase(values.name, values.phone);
       } else {
-        // show error
         openNotificationWithIcon(
           "error",
           "Error",
@@ -170,22 +168,11 @@ const IncompleteOrders = () => {
     }
   };
 
-  console.log(dressTypeError);
-
   const prepareToSaveToFirebase = (name, phone) => {
     const gender = value === 1 ? "पुरुष" : "महिला";
     const shirt = selectedItems.has("shirt") ? true : false;
     const pant = selectedItems.has("pant") ? true : false;
-    console.log(
-      "THe data,",
-      name,
-      phone,
-      gender,
-      shirt,
-      pant,
-      toggleCountPant,
-      toggleCountShirt
-    );
+
     // save the data to store , and open next modal
     dispatch(setNewCustomerName(name));
     dispatch(setNewCustomerPhone(phone));
@@ -204,35 +191,6 @@ const IncompleteOrders = () => {
     setIsNewCustomerDetails(true);
 
     // clear the form once modal closed
-  };
-
-  const changeCount = (increase, type) => {
-    console.log("The type", type);
-    if (increase) {
-      switch (type) {
-        case "shirt":
-          setToggleCountShirt(toggleCountShirt + 1);
-          break;
-        case "pant":
-          setToggleCountPant(toggleCountPant + 1);
-          break;
-        default:
-      }
-    } else {
-      switch (type) {
-        case "shirt":
-          if (toggleCountShirt !== 1) {
-            setToggleCountShirt(toggleCountShirt - 1);
-          }
-          break;
-        case "pant":
-          if (toggleCountPant !== 1) {
-            setToggleCountPant(toggleCountPant - 1);
-          }
-          break;
-        default:
-      }
-    }
   };
 
   const onChange = (e) => {
@@ -284,14 +242,6 @@ const IncompleteOrders = () => {
     setSelectedClothImage(clothImage);
   };
 
-  const getDate = (obj) => {
-    const date = new Date(obj); // Create a Date object from the date string
-    const day = date.getDate().toString().padStart(2, "0"); // Get day and pad with leading zero if necessary
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Get month (zero-based index) and pad with leading zero if necessary
-    const year = date.getFullYear(); // Get full year (4 digits)
-    return `${day}/${month}/${year}`;
-  };
-
   const convertToBlobObject = (image) => {
     // Convert base64 string to Blob object
     const byteCharacters = atob(image.split(",")[1]);
@@ -305,7 +255,7 @@ const IncompleteOrders = () => {
   };
 
   const onFinish2Form = async (values) => {
-    console.log("Items", values);
+    const formatedCustomerName = CustomerNameFormat(customerName);
 
     //  dates
     const dueDate = getDate(values.dueDate);
@@ -362,106 +312,94 @@ const IncompleteOrders = () => {
       hipSize: hipSize,
     };
 
-    // for storing images
     try {
-      for (let i = 0; i <= 1; i++) {
-        let currentImage, currentFolderName;
-        if (i === 0) {
-          currentImage = selectedClientImage;
-          currentFolderName = "customerImages";
-        } else {
-          currentImage = selectedClothImage;
-          currentFolderName = "clothImages";
+      if (selectedClientImage && selectedClothImage) {
+        // turn on loader
+        showLoader();
+        // saving images
+        for (let i = 0; i <= 1; i++) {
+          let currentImage, currentFolderName;
+          if (i === 0) {
+            currentImage = selectedClientImage;
+            currentFolderName = "customerImages";
+          } else {
+            currentImage = selectedClothImage;
+            currentFolderName = "clothImages";
+          }
+          const blob = convertToBlobObject(currentImage);
+          const imageRef = ref(
+            storage,
+            `${currentFolderName}/${formatedCustomerName}_${customerPhone}_000${totalCustCount}`
+          );
+
+          uploadBytes(imageRef, blob).then((snapshot) => {
+            getDownloadURL(snapshot.ref)
+              .then((url) => {
+                console.log(url);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          });
         }
-        const blob = convertToBlobObject(currentImage);
-        const imageRef = ref(storage, `${currentFolderName}/${customerPhone}`);
 
-        uploadBytes(imageRef, blob).then((snapshot) => {
-          getDownloadURL(snapshot.ref)
-            .then((url) => {
-              console.log(url);
-            })
-            .catch((error) => {
-              console.log(error);
-            });
+        // saving customer material data
+        const customerRef = doc(
+          db,
+          "Customers",
+          `${formatedCustomerName}_${customerPhone}_000${totalCustCount}`
+        );
+        await setDoc(customerRef, {
+          // first page details
+          customerName,
+          customerPhone,
+          customerGender,
+          customerInvoice: `000${totalCustCount}`,
+          customerShirtDetails,
+          // other page details
+          dueDate,
+          dueDateRemeber,
+          totalAmt,
+          advanceAmt,
+          remainingAmt,
+          length,
+          chest,
+          weist,
+          shoulder,
+          collar,
+          lengthOfHand,
+          handFourSide,
+          wrist,
+          hip,
+          collarType,
+          pocketsSize,
         });
+
+        openNotificationWithIcon(
+          "success",
+          "Success",
+          <FormattedMessage id="addedNewRecord" />
+        );
+        // stop spin
+        setSpinning(false);
+        // after completion , if user clicks on button should get starting form
+        onCancle();
+      } else {
+        openNotificationWithIcon(
+          "error",
+          "Error",
+          <FormattedMessage id="imagesError" />
+        );
       }
-    } catch (error) {
-      console.log(error);
-    }
-
-    try {
-      // saving customer material data
-      const customerRef = doc(db, "Customers", customerPhone);
-      await setDoc(customerRef, {
-        // first page details
-        customerName,
-        customerPhone,
-        customerGender,
-        customerShirtDetails,
-        // other page details
-        dueDate,
-        dueDateRemeber,
-        totalAmt,
-        advanceAmt,
-        remainingAmt,
-        length,
-        chest,
-        weist,
-        shoulder,
-        collar,
-        lengthOfHand,
-        handFourSide,
-        wrist,
-        hip,
-      });
-
-      openNotificationWithIcon(
-        "success",
-        "Success",
-        <FormattedMessage id="addedNewRecord" />
-      );
     } catch (e) {
       openNotificationWithIcon(
         "error",
         "Error",
         <FormattedMessage id="errorAddingNewRecord" />
       );
+
+      setSpinning(false);
     }
-
-    // get the data from storage to homescreen
-    // make it live and fix camera issue save image etc
-    // make the form correct for pricing
-
-    // share demo 1
-    // test
-
-    // dispatch(setDeliveryDate(dueDate));
-    // dispatch(setDueDate(dueDateRemeber));
-    // dispatch(setTotalAmt(totalAmt));
-    // dispatch(setAdvanceAmount(advanceAmt));
-    // dispatch(setRemainingAmount(remainingAmt));
-    // dispatch(setCollarTypeState(collarType));
-    // dispatch(setPocketCountState(pocketsSize));
-
-    // dispatch(setLength(len));
-    // dispatch(setLengthSizeState(lengthSize));
-    // dispatch(setChest(chest));
-    // dispatch(setChestSizeState(chestSize));
-    // dispatch(setWeist(weist));
-    // dispatch(setWeistSizeState(weistSize));
-    // dispatch(setShoulder(shoulder));
-    // dispatch(setShoulderSizeState(shoulderSize));
-    // dispatch(setCollar(collar));
-    // dispatch(setCollarSizeState(collarSize));
-    // dispatch(setLengthOfHand(lengthOfHand));
-    // dispatch(setLengthOfHandSizeState(lengthOfHandSize));
-    // dispatch(setHandFourSide(handFourSide));
-    // dispatch(setHandFourSideSizeState(handFourSideSize));
-    // dispatch(setWrist(wrist));
-    // dispatch(setWristSizeState(wriestSize));
-    // dispatch(setHip(hip));
-    // dispatch(setHipSizeState(hipSize));
   };
 
   const contextValue = useMemo(
@@ -475,11 +413,24 @@ const IncompleteOrders = () => {
     <Context.Provider value={contextValue}>
       {contextHolder}
       <>
-        <Col style={{ padding: "10px" }}>
-          <Row>
-            <FormattedMessage id="noRecords" />
-          </Row>
-        </Col>
+        {!loadingCustomerImages &&
+        !loadingClothImages &&
+        !loadingData &&
+        allInCompletOrdersData.length === 0 ? (
+          <FormattedMessage id="noRecords" />
+        ) : (
+          <Col span={24} style={{ padding: "10px" }}>
+            {loadingCustomerImages && loadingClothImages && loadingData ? (
+              <Spin />
+            ) : (
+              <AllIncompleteOrders
+                docs={allInCompletOrdersData}
+                customerImageUrls={customerImageUrls}
+                clothImageUrls={clothImageUrls}
+              />
+            )}
+          </Col>
+        )}
         <FloatButton
           onClick={showModal}
           shape="circle"
@@ -487,9 +438,11 @@ const IncompleteOrders = () => {
           tooltip={<FormattedMessage id="addUser" />}
           style={{
             right: 24,
+            backgroundColor: "#E17B2B",
           }}
           icon={<UserAddOutlined />}
         />
+
         <Modal
           title={
             isNewCustomerDetails ? (
@@ -500,8 +453,7 @@ const IncompleteOrders = () => {
                 <Row justify={"center"} align={"middle"}>
                   <Text
                     style={{ fontSize: "11px" }}
-                  >{`${customerName} - `}</Text>
-                  <Text style={{ fontSize: "11px" }}>{"(0001)"}</Text>
+                  >{`${customerName} - 000${totalCustCount}`}</Text>
                 </Row>
 
                 <CloseOutlined onClick={onCancle} />
@@ -538,6 +490,7 @@ const IncompleteOrders = () => {
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 16 }}
                 >
+                  {spinning && <Loader spinning={spinning} percent={percent} />}
                   <ImageSection getImages={getImages} />
                   <NameSection />
                   <ShirtSection getDetails={getDetails} />

@@ -26,7 +26,7 @@ export default function MainMenu() {
   let nav = useNavigate();
   const onClick = (e) => {
     if (e.key === "tailor") {
-      nav("/tailor");
+      nav("/tailor/incompletOrders");
     } else if (e.key === "fabric") {
       nav("/fabric");
     }
@@ -44,12 +44,6 @@ export default function MainMenu() {
           style={{ backgroundColor: "#071C2D" }}
         />
       </Col>
-      {/* <Col
-        span={16}
-        style={{ textAlign: "center", color: "#FFFFFF", fontSize: "14px" }}
-      >
-        <FormattedMessage id="storeName" />
-      </Col> */}
       <Col style={{paddingRight:"10px"}}>
         <Row>
           <Button

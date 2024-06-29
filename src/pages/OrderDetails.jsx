@@ -16,18 +16,13 @@ const OrderDetails = () => {
   return (
     <>
       <DetailsNameRow
-        name={item.customerName}
-        customerInvoice={item.customerInvoice}
+        item={item}
+        custImg={custImg}
+        clothImg={clothImg}
       />
       <DetailsImageSection custImg={custImg} clothImg={clothImg} />
       <DetailsPersonalDataRow
         item={item}
-        // customerPhone={item.customerPhone}
-        // dueDate={item.dueDate}
-        // dueDateRemeber={item.dueDateRemeber}
-        // totalAmt={item.totalAmt}
-        // advanceAmt={item.advanceAmt}
-        // remainingAmt={item.remainingAmt}
       />
     </>
   );

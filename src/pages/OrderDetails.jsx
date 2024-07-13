@@ -3,6 +3,9 @@ import { useLocation } from "react-router-dom";
 import DetailsImageSection from "../customeHooks/DetailsImagesSection";
 import DetailsNameRow from "../components/DetailsNameRow";
 import DetailsPersonalDataRow from "../components/DetailsPersonalDataRow";
+import { useState } from "react";
+import { InvoiceContext } from "../context/InvoiceContext";
+import InvoiceComponent from "../components/InvoiceComponent";
 
 const OrderDetails = () => {
   const location = useLocation();
@@ -13,18 +16,20 @@ const OrderDetails = () => {
   const custImg = additionalData.customerImgUrl;
   const clothImg = additionalData.clothImgUrl;
 
+  const [isInvoice, setIsInvoice] = useState(false);
+
   return (
-    <>
-      <DetailsNameRow
-        item={item}
-        custImg={custImg}
-        clothImg={clothImg}
-      />
-      <DetailsImageSection custImg={custImg} clothImg={clothImg} />
-      <DetailsPersonalDataRow
-        item={item}
-      />
-    </>
+    <InvoiceContext.Provider value={{ isInvoice, setIsInvoice }}>
+      {isInvoice ? (
+        <InvoiceComponent item={item} custImg={custImg} clothImg={clothImg} />
+      ) : (
+        <>
+          <DetailsNameRow item={item}/>
+          <DetailsImageSection custImg={custImg} clothImg={clothImg} />
+          <DetailsPersonalDataRow item={item} />
+        </>
+      )}
+    </InvoiceContext.Provider>
   );
 };
 

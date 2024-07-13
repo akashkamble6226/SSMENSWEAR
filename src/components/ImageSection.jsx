@@ -17,12 +17,14 @@ const ImageSection = ({ getImages }) => {
     const file = fileInput.files[0];
 
     // Display the selected image with lower resolution
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log("e", e);
-      setSelectedClientImage(e.target.result);
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        console.log("e", e);
+        setSelectedClientImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   useEffect(() => {
@@ -37,11 +39,20 @@ const ImageSection = ({ getImages }) => {
     const file = fileInput.files[0];
 
     // Display the selected image with lower resolution
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setSelectedClothImage(e.target.result);
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setSelectedClothImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInputClick = (inputId) => {
+    const fileInput = document.getElementById(inputId);
+    if (fileInput) {
+      fileInput.click();
+    }
   };
 
   return (
@@ -63,13 +74,18 @@ const ImageSection = ({ getImages }) => {
               backgroundColor: !selectedClientImage && "#A3A3A3",
               borderRadius: "50%",
             }}
-            onClick={() => document.getElementById("fileInput").click()}
+            onClick={() => triggerFileInputClick("fileInput")}
           >
             <Image
               src={selectedClientImage ? selectedClientImage : user}
               preview={false}
               width={100}
-              style={{ display: "flex", justifyContent: "center" }}
+              height={100}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                borderRadius: "50%",
+              }}
             />
             <input
               id="fileInput"
@@ -83,7 +99,7 @@ const ImageSection = ({ getImages }) => {
               style={{
                 display: "flex",
                 justifyContent: "center",
-                fontSize: "12px",
+                fontSize: "15px",
               }}
             >
               <FormattedMessage id="photo" />
@@ -96,13 +112,18 @@ const ImageSection = ({ getImages }) => {
               backgroundColor: !selectedClothImage && "#A3A3A3",
               borderRadius: "50%",
             }}
-            onClick={() => document.getElementById("fileInput2").click()}
+            onClick={() => triggerFileInputClick("fileInput2")}
           >
             <Image
               src={selectedClothImage ? selectedClothImage : cloth}
               preview={false}
               width={100}
-              style={{ display: "flex", justifyContent: "center" }}
+              height={100}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                borderRadius: "50%",
+              }}
             />
             <input
               id="fileInput2"
@@ -116,7 +137,7 @@ const ImageSection = ({ getImages }) => {
               style={{
                 display: "flex",
                 justifyContent: "center",
-                fontSize: "12px",
+                fontSize: "15px",
               }}
             >
               <FormattedMessage id="cloth" />

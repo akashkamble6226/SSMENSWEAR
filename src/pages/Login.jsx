@@ -105,12 +105,12 @@ const Login = () => {
           span={12}
         >
           <Title
-            level={4}
+            level={2}
             style={{
               color: "#fff",
               textAlign: "center",
               fontWeight: "bold",
-              marginTop: "0px",
+              marginTop: "10px",
             }}
           >
             <FormattedMessage id="storeName" />
@@ -122,7 +122,8 @@ const Login = () => {
           style={{
             height: !isPhoneActive && "100vh",
             alignContent: "center",
-            paddingLeft: "5px",
+            // paddingLeft: "5px",
+            padding:"0px",
             marginTop: isPhoneActive && "10px",
           }}
           xs={24}
@@ -133,8 +134,10 @@ const Login = () => {
           <Row justify={"center"}>
             <Col>
               <Card
-                title=<FormattedMessage id="login" />
-                style={{ backgroundColor: "#071C2D", color: "#FFFFFF" }}
+                title=<Text style={{ fontSize: "25px", color: "#fff" }}>
+                  <FormattedMessage id="login" />
+                </Text>
+                style={{ backgroundColor: "#071C2D", color: "#FFFFFF", margin:"0px" }}
               >
                 <Col>
                   <ConfigProvider
@@ -155,42 +158,55 @@ const Login = () => {
                       <Form.Item
                         style={{ color: "#ffffff" }}
                         labelAlign="left"
-                        label=<FormattedMessage id="email" />
+                        label=<Text style={{ fontSize: "20px", color: "#fff" }}>
+                          <FormattedMessage id="email" />
+                        </Text>
                         name="email"
                         rules={[
                           {
                             required: true,
-                            message: <FormattedMessage id="enterEmail" />,
+                            message: (
+                              <Text style={{ fontSize: "18px", color: "red" }}>
+                                <FormattedMessage id="enterEmail" />
+                              </Text>
+                            ),
                           },
                         ]}
                       >
-                        <Input />
+                        <Input size="large" />
                       </Form.Item>
 
                       <Form.Item
                         labelAlign="left"
-                        label=<FormattedMessage id="password" />
+                        label=<Text style={{ fontSize: "20px", color: "#fff" }}>
+                          <FormattedMessage id="password" />
+                        </Text>
                         name="password"
                         rules={[
                           {
                             required: true,
-                            message: <FormattedMessage id="enterPassword" />,
+                            message: (
+                              <Text style={{ fontSize: "18px", color: "red" }}>
+                                <FormattedMessage id="enterPassword" />
+                              </Text>
+                            ),
                           },
                         ]}
                       >
-                        <Input.Password />
+                        <Input.Password size="large" />
                       </Form.Item>
                       {isloading ? (
                         <Row justify={"center"}>
-                          <Spin />
+                          <Spin size="large" />
                         </Row>
                       ) : (
                         <Row justify={"center"}>
                           <Form.Item>
                             <Button
+                            size="large"
                               type="primary"
                               htmlType="submit"
-                              style={{ marginTop: "20px" }}
+                              style={{ marginTop: "20px", paddingTop:"0px", fontSize:"25px" }}
                             >
                               <FormattedMessage id="login" />
                             </Button>

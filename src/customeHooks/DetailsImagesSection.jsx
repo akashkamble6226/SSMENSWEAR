@@ -7,13 +7,13 @@ const DetailsImageSection = ({ custImg, clothImg }) => {
         <Image
           preview={false}
           src={clothImg}
-          style={{ height: "200px", justifyContent: "center" }}
+          style={{ height: "200px", width:"100%", justifyContent: "center", }}
         />
       </Row>
       <Row
         style={{
           position: "absolute",
-          bottom: "0",
+          bottom: "0px",
           left: "50%",
           transform: "translate(-50%, 50%)",
           display: "flex",
@@ -23,8 +23,8 @@ const DetailsImageSection = ({ custImg, clothImg }) => {
         <Image
           preview={false}
           src={custImg}
-          width={100}
-          height={100}
+          width={110}
+          height={110}
           style={{
             borderRadius: "50%",
             objectFit: "cover",

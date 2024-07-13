@@ -6,15 +6,18 @@ import { IoCallSharp } from "react-icons/io5";
 import { FormattedMessage } from "react-intl";
 import { dateDiffrenceInDays } from "../func/dateDiffrenceInDays";
 import { useNavigate } from "react-router-dom";
+// import "AllIncompleteOrders.css";
 
 const { Text } = Typography;
 
 const AllIncompleteOrders = ({ docs, customerImageUrls, clothImageUrls }) => {
   let navigate = useNavigate();
   function goToDetailsPage(item) {
+    console.log("The item", item);
     const invoice = item.customerInvoice;
     const customerImgUrl = customerImageUrls[item.customerInvoice];
     const clothImgUrl = clothImageUrls[item.customerInvoice];
+    // console.log("the ", invoice)
     const additionalData = {
       item,
       customerImgUrl,
@@ -34,13 +37,17 @@ const AllIncompleteOrders = ({ docs, customerImageUrls, clothImageUrls }) => {
               customerImageUrls[item.customerInvoice] && goToDetailsPage(item);
             }}
             hoverable={true}
-            style={{ border: "1px solid #A3A3A3", margin: "5px" }}
+            style={{
+              border: "1px solid #A3A3A3",
+              margin: "5px",
+              padding: "0px",
+            }}
           >
-            <Row align={"middle"}>
-              <Col style={{ marginRight: "20px" }}>
+            <Row align={"middle"} justify={"space-between"}>
+              <Col>
                 {customerImageUrls[item.customerInvoice] ? (
                   <Avatar
-                    size={64}
+                    size={50}
                     icon={<UserOutlined />}
                     src={customerImageUrls[item.customerInvoice]}
                   />
@@ -49,29 +56,39 @@ const AllIncompleteOrders = ({ docs, customerImageUrls, clothImageUrls }) => {
                 )}
               </Col>
               <Col>
-                <Row>
-                  <Text strong={true}>{item.customerName}</Text>
-                </Row>
-                <Row style={{ marginTop: "10px" }}>
-                  <Col style={{ paddingRight: "10px" }}>
-                    <MdOutlineMessage size={22} />
-                  </Col>
-                  <IoCallSharp size={22} />
-                </Row>
-                <Row style={{ marginTop: "10px" }}>
-                  <Col flex={"auto"}>
+                <Text
+                  ellipsis
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    width: "150px",
+                  }}
+                >
+                  {item.customerName}
+                </Text>
+                <Row style={{ width: "150px" }}>
+                  <Text ellipsis style={{ fontSize: "16px" }}>
                     <FormattedMessage id="deliveryDateRemaining" />
-                    <Text strong style={{ marginLeft: "5px" }}>
-                      {dateDiffrenceInDays(item.dueDate, item.dueDateRemeber)}
-                    </Text>
-                  </Col>
+                    <b>
+                      {` ${dateDiffrenceInDays(item.dueDate, item.dueDateRemeber)}`}
+                    </b>
+                  </Text>
                 </Row>
               </Col>
-
-              <Col style={{ marginLeft: "5px" }}>
-                <Button type="primary">
+              <Col>
+                <Row align={"middle"} justify={"space-between"}>
+                  <MdOutlineMessage size={25} />
+                  <IoCallSharp size={25} />
+                </Row>
+                {/* <Row style={{paddingRight:"10px"}} justify={"center"}> */}
+                <Button
+                  type="primary"
+                  size="large"
+                  style={{ width: "80px", marginTop: "10px", fontSize: "18px" }}
+                >
                   <FormattedMessage id="completed" />
                 </Button>
+                {/* </Row> */}
               </Col>
             </Row>
           </Card>

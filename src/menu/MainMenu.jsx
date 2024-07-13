@@ -34,23 +34,23 @@ export default function MainMenu() {
   };
   return (
     <Row style={{ backgroundColor: "#071C2D" }} align={"middle"}>
-      <Col flex={"auto"} >
+      <Col flex={"auto"}>
         <Menu
           onClick={onClick}
           selectedKeys={[current]}
           theme="dark"
           mode="horizontal"
           items={items}
-          style={{ backgroundColor: "#071C2D" }}
+          style={{ backgroundColor: "#071C2D", fontSize: "22px" }}
         />
       </Col>
-      <Col style={{paddingRight:"10px"}}>
+      <Col style={{ paddingRight: "10px" }}>
         <Row>
           <Button
             type="primary"
             shape="round"
             size="middle"
-            style={{ backgroundColor: "#E17B2B" }}
+            style={{ backgroundColor: "#E17B2B",paddingTop:"0px", fontSize: "22px" }}
             onClick={() => dispatch(setLoginStatus(false))}
           >
             <FormattedMessage id="logout" />

@@ -6,9 +6,17 @@ import { useEffect, useState } from "react";
 
 const { Text } = Typography;
 
-const ImageSection = ({ getImages }) => {
-  const [selectedClientImage, setSelectedClientImage] = useState(null);
-  const [selectedClothImage, setSelectedClothImage] = useState(null);
+const ImageSection = ({
+  getImages,
+  alreadySelectedClientImage = null,
+  alreadySelectedClothImage = null,
+}) => {
+  const [selectedClientImage, setSelectedClientImage] = useState(
+    alreadySelectedClientImage
+  );
+  const [selectedClothImage, setSelectedClothImage] = useState(
+    alreadySelectedClothImage
+  );
   // open camera
 
   const handleClientImageCapture = async (event) => {

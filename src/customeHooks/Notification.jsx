@@ -1,6 +1,6 @@
 import { notification } from "antd";
 
-const useNotification = () => {
+const useNotificationHook = () => {
   const [api, contextHolder] = notification.useNotification();
   const openNotificationWithIcon = (type, msg, desc) => {
     api[type]({
@@ -11,4 +11,4 @@ const useNotification = () => {
   return { openNotificationWithIcon, contextHolder };
 };
 
-export default useNotification;
+export default useNotificationHook;

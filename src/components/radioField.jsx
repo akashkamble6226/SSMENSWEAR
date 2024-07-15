@@ -29,7 +29,7 @@ const items = [
   },
 ];
 
-const RadioField = () => {
+const RadioField = ({ prevShirtType = "" }) => {
   const { isShirtCircle, setIsShirtCircle } = useContext(IsShirtCircleContext);
   const onChange = (val) => {
     setIsShirtCircle(val.target.value);
@@ -39,20 +39,26 @@ const RadioField = () => {
       <Row align={"middle"} style={{ marginTop: "10px" }}>
         <Form.Item
           labelAlign="left"
-         
           name={"shirtType"}
           noStyle={true}
           rules={[
             {
-              required: true,
+              required:  prevShirtType !== "" ? false : true,
               message: <FormattedMessage id="length" />,
             },
           ]}
         >
           <Select
-            placeholder={<FormattedMessage id="chooseOne" />}
+            placeholder={
+              prevShirtType !== "" ? (
+                prevShirtType
+              ) : (
+                <FormattedMessage id="chooseOne" />
+              )
+            }
             style={{ width: "45%", marginRight: "10px" }}
             // onChange={onChange}
+
             options={items}
             size="middle"
           />

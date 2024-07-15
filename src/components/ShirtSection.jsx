@@ -21,18 +21,31 @@ import SingleField from "./SingleField";
 import { IsShirtCircleContext } from "../context/ShirtContext";
 
 const { Text } = Typography;
-const ShirtSection = () => {
-  const [heightSize, setHeightSize] = useState("");
-  const [bahiSize, setBahiSize] = useState("");
-  const [stomachSize, setStomachSize] = useState("");
-  const [chestSize, setChestSize] = useState("");
-  const [shoulderSize, setShoulderSize] = useState("");
-  const [collarSize, setCollarSize] = useState("");
-  const [cupSize, setCupSize] = useState("");
-  const [mundaSize, setMundaSize] = useState("");
-  const [dandGearSize, setDandGearSize] = useState("");
-  const [hipSize, setHipSize] = useState(0);
-  const [pocketsSize, setPocketsSize] = useState(0);
+const ShirtSection = ({
+  prevShirtType="",
+  prevHeightSize = "",
+  prevBahiSize = "",
+  prevStomachSize = "",
+  prevChestSize = "",
+  prevShoulderSize = "",
+  preCollarSize = "",
+  prevCupSize = "",
+  prevMundaSize = "",
+  preDandGearSize = "",
+  prevHipSize = "",
+  prevPocketsSize = "",
+}) => {
+  const [heightSize, setHeightSize] = useState(prevHeightSize);
+  const [bahiSize, setBahiSize] = useState(prevBahiSize);
+  const [stomachSize, setStomachSize] = useState(prevStomachSize);
+  const [chestSize, setChestSize] = useState(prevChestSize);
+  const [shoulderSize, setShoulderSize] = useState(prevShoulderSize);
+  const [collarSize, setCollarSize] = useState(preCollarSize);
+  const [cupSize, setCupSize] = useState(prevCupSize);
+  const [mundaSize, setMundaSize] = useState(prevMundaSize);
+  const [dandGearSize, setDandGearSize] = useState(preDandGearSize);
+  const [hipSize, setHipSize] = useState(prevHipSize);
+  const [pocketsSize, setPocketsSize] = useState(prevPocketsSize);
 
   const items = [
     {
@@ -104,7 +117,7 @@ const ShirtSection = () => {
           }}
         >
           {/* NEW FIELD */}
-          <RadioField />
+          <RadioField prevShirtType={prevShirtType} />
 
           <Row style={{ marginTop: "10px" }}>
             <Col
@@ -118,12 +131,14 @@ const ShirtSection = () => {
                 formItmeName={"height"}
                 onClick={onClick}
                 lengthSize={heightSize}
+                prevData={prevHeightSize}
               />
               <SingleField
                 labelName={"shoulder"}
                 formItmeName={"shoulder"}
                 onClick={onClick}
                 lengthSize={shoulderSize}
+                prevData={prevShoulderSize}
               />
 
               <SingleField
@@ -131,6 +146,7 @@ const ShirtSection = () => {
                 formItmeName={"bahi"}
                 onClick={onClick}
                 lengthSize={bahiSize}
+                prevData={prevBahiSize}
               />
 
               <SingleField
@@ -138,6 +154,7 @@ const ShirtSection = () => {
                 formItmeName={"chest"}
                 onClick={onClick}
                 lengthSize={chestSize}
+                prevData={prevChestSize}
               />
 
               <SingleField
@@ -145,6 +162,7 @@ const ShirtSection = () => {
                 formItmeName={"stomach"}
                 onClick={onClick}
                 lengthSize={stomachSize}
+                prevData={prevStomachSize}
               />
 
               <SingleField
@@ -152,6 +170,7 @@ const ShirtSection = () => {
                 formItmeName={"hip"}
                 onClick={onClick}
                 lengthSize={hipSize}
+                prevData={prevHipSize}
               />
 
               <SingleField
@@ -159,6 +178,7 @@ const ShirtSection = () => {
                 formItmeName={"collar"}
                 onClick={onClick}
                 lengthSize={collarSize}
+                prevData={preCollarSize}
               />
 
               <SingleField
@@ -166,6 +186,7 @@ const ShirtSection = () => {
                 formItmeName={"cup"}
                 onClick={onClick}
                 lengthSize={cupSize}
+                prevData={prevCupSize}
               />
 
               <SingleField
@@ -173,6 +194,7 @@ const ShirtSection = () => {
                 formItmeName={"munda"}
                 onClick={onClick}
                 lengthSize={mundaSize}
+                prevData={prevMundaSize}
               />
 
               <SingleField
@@ -180,6 +202,7 @@ const ShirtSection = () => {
                 formItmeName={"DandGear"}
                 onClick={onClick}
                 lengthSize={dandGearSize}
+                prevData={preDandGearSize}
               />
 
               {/* pockets */}
@@ -196,13 +219,15 @@ const ShirtSection = () => {
                     noStyle={true}
                     rules={[
                       {
-                        required: true,
+                        required:prevPocketsSize !== "" ? false : true,
                         message: <FormattedMessage id="length" />,
                       },
                     ]}
                   >
                     <Select
-                      placeholder={"0"}
+                      placeholder={
+                        prevPocketsSize !== "" ? prevPocketsSize : "0"
+                      }
                       style={{ width: "70%", marginRight: "10px" }}
                       options={pockets}
                       size="large"

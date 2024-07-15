@@ -47,7 +47,6 @@ import { getCustomersCount } from "../func/customerCount";
 import { totalCustomerCountStatus } from "../store/totalCustomerCountSlice";
 import { CustomerNameFormat } from "../func/customerNameFormatting";
 import Loader from "../components/Loader";
-import useNotification from "../customeHooks/Notification";
 import useLoader from "../customeHooks/Loader";
 import { isValidPhoneNumber } from "../func/phoneNumberValid";
 import useItemCount from "../customeHooks/ItemCount";
@@ -58,6 +57,8 @@ import AllIncompleteOrders from "../components/AllIncompletOrders";
 import useAllCustomerImages from "../customeHooks/AllCustomerImages";
 import { IsShirtCircleContext } from "../context/ShirtContext";
 import { convertToBlobObject } from "../func/blob";
+import { getShirtType } from "../func/shirtType";
+import useNotificationHook from "../customeHooks/Notification";
 const { Text } = Typography;
 
 const Context = React.createContext({
@@ -70,7 +71,7 @@ const AddNewCustomerPage = () => {
   const [value, setValue] = useState(1);
   const [selectedItems, setSelectedItems] = useState(new Set());
   const [isNewCustomerDetails, setIsNewCustomerDetails] = useState(false);
-  const { openNotificationWithIcon, contextHolder } = useNotification();
+  const { openNotificationWithIcon, contextHolder } = useNotificationHook();
   const { spinning, setSpinning, percent, setPercent, showLoader } =
     useLoader();
 
@@ -205,29 +206,6 @@ const AddNewCustomerPage = () => {
     console.log(clientImage);
     setSelectedClientImage(clientImage);
     setSelectedClothImage(clothImage);
-  };
-
- 
-
-  const getShirtType = (value) => {
-    let shirt;
-    switch (value) {
-      case "1":
-        shirt = "मेनीला";
-        break;
-      case "2":
-        shirt = "Apple Cut";
-        break;
-      case "3":
-        shirt = "Open Shirt";
-        break;
-      case "4":
-        shirt = "3 Button Shirt";
-        break;
-      default:
-        shirt = "";
-    }
-    return shirt;
   };
 
   const onFinish2Form = async (values) => {

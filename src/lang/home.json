@@ -75,7 +75,9 @@
   "DandGear":"दंडघेर",
   "front":"फ्रन्ट",
   "halfStomoch":"अर्ध पोट",
-  "halfSeat":"अर्ध सीट"
+  "halfSeat":"अर्ध सीट",
+  "updateSuccess": "रेकॉर्ड update केला.",
+  "updateFailed":"रेकॉर्ड update केले जाऊ शकत नाही."
 
 
   

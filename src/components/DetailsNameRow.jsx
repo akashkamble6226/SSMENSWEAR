@@ -5,21 +5,45 @@ import { CiMenuKebab } from "react-icons/ci";
 import { useContext } from "react";
 import { InvoiceContext } from "../context/InvoiceContext";
 const { Text } = Typography;
-const DetailsNameRow = ({ item }) => {
+const DetailsNameRow = ({ item, custImg, clothImg }) => {
   const name = item.customerName;
   const customerInvoice = item.customerInvoice;
 
   let navigate = useNavigate();
 
-  const { isInvoice, setIsInvoice } = useContext(InvoiceContext);
+  const { isInvoice, setIsInvoice, setIsEditing } = useContext(InvoiceContext);
 
   const goBack = () => {
     navigate("/tailor/incompletOrders");
   };
 
+  const openEditingPage = () => {
+    const additionalData = {
+      item,
+      custImg,
+      clothImg,
+    };
+    navigate(`/tailor/incompletOrders/edit/${customerInvoice}`, {
+      state: { additionalData },
+    });
+  };
+
   const performOperation = (e) => {
     console.log("click ", e.key);
-    setIsInvoice(true);
+    switch (e.key) {
+      case "1":
+        setIsInvoice(true);
+        break;
+      case "2":
+        openEditingPage();
+        break;
+    }
+    // if (e.key === 1) {
+
+    // } else if (e.key === 2) {
+    //   // open editing page
+    //   openEditingPage();
+    // }
   };
 
   const items = [
@@ -32,7 +56,7 @@ const DetailsNameRow = ({ item }) => {
       label: <Text style={{ fontSize: "20px" }}>Edit</Text>,
     },
     {
-      key: "2",
+      key: "3",
       label: <Text style={{ fontSize: "20px" }}>Delete</Text>,
     },
   ];

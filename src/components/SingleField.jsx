@@ -3,13 +3,7 @@ import { FormattedMessage } from "react-intl";
 
 const { Text } = Typography;
 
-const SingleField = ({
-  labelName,
-  formItmeName,
-  onClick,
-  lengthSize,
-  isMarathiName,
-}) => {
+const SingleField = ({ labelName, formItmeName, prevData }) => {
   let name;
   // if (isMarathiName) {
   //   name = <FormattedMessage id={labelName} />;
@@ -50,7 +44,7 @@ const SingleField = ({
             noStyle={true}
             rules={[
               {
-                required: true,
+                required: prevData !== "" ? false : true,
                 message: <FormattedMessage id="length" />,
               },
             ]}
@@ -58,7 +52,7 @@ const SingleField = ({
             <Input
               // type="number"
               size="large"
-              placeholder="0"
+              placeholder={prevData !== "" ? prevData : "0"}
               style={{
                 width: "100%",
                 paddingLeft: "4px",

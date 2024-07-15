@@ -6,6 +6,7 @@ import DetailsPersonalDataRow from "../components/DetailsPersonalDataRow";
 import { useState } from "react";
 import { InvoiceContext } from "../context/InvoiceContext";
 import InvoiceComponent from "../components/InvoiceComponent";
+import EditOrder from "./EditOrder";
 
 const OrderDetails = () => {
   const location = useLocation();
@@ -24,7 +25,7 @@ const OrderDetails = () => {
         <InvoiceComponent item={item} custImg={custImg} clothImg={clothImg} />
       ) : (
         <>
-          <DetailsNameRow item={item}/>
+          <DetailsNameRow item={item} custImg={custImg} clothImg={clothImg} />
           <DetailsImageSection custImg={custImg} clothImg={clothImg} />
           <DetailsPersonalDataRow item={item} />
         </>

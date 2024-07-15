@@ -3,9 +3,14 @@ import { FormattedMessage } from "react-intl";
 import { useState } from "react";
 const { Text } = Typography;
 
-const NameSection = (getDateCost) => {
-  const [totalAmt, setTotalAmt] = useState(0);
-  const [advanceAmt, setAdvanceAmt] = useState(0);
+const NameSection = ({
+  deliveryDate = null,
+  deliveryRemainderDate = null,
+  currentTotalAmt = 0,
+  currentAdvancAmt = 0,
+}) => {
+  const [totalAmt, setTotalAmt] = useState(currentTotalAmt);
+  const [advanceAmt, setAdvanceAmt] = useState(currentAdvancAmt);
 
   const calculateRemaining = () => {
     console.log("totalAmt", totalAmt);
@@ -42,7 +47,7 @@ const NameSection = (getDateCost) => {
               name="dueDate"
               rules={[
                 {
-                  required: true,
+                  required: deliveryDate ? false : true,
                   message: (
                     <Text style={{ fontSize: "18px" }}>
                       <FormattedMessage id="enterDate" />
@@ -54,12 +59,7 @@ const NameSection = (getDateCost) => {
               <DatePicker
                 size="large"
                 style={{ fontSize: "18px" }}
-                placeholder="तारीख निवडा"
-                // onChange={(dt, dateString) => {
-                //   const parts = dateString.split("-");
-                //   const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                //   setDueDate(formattedDate);
-                // }}
+                placeholder={deliveryDate ? deliveryDate : "तारीख निवडा"}
               />
             </Form.Item>
           </Col>
@@ -84,7 +84,7 @@ const NameSection = (getDateCost) => {
               name="dueDateRemeber"
               rules={[
                 {
-                  required: true,
+                  required: deliveryRemainderDate ? false : true,
                   message: <FormattedMessage id="enterDate" />,
                 },
               ]}
@@ -92,19 +92,21 @@ const NameSection = (getDateCost) => {
               <DatePicker
                 size="large"
                 style={{ fontSize: "18px" }}
-                placeholder="तारीख निवडा"
+                placeholder={
+                  deliveryRemainderDate ? deliveryRemainderDate : "तारीख निवडा"
+                }
               />
             </Form.Item>
           </Col>
         </Row>
         {/* payment status */}
-        <Row style={{ marginTop: "10px"}}>
+        <Row style={{ marginTop: "10px" }}>
           <Col
             style={{
               border: "1px solid #1677ff",
               padding: "10px",
               borderRadius: "10px",
-              width:"100%"
+              width: "100%",
             }}
           >
             <Row justify={"center"}>
@@ -125,15 +127,19 @@ const NameSection = (getDateCost) => {
                   name="totalAmount"
                   rules={[
                     {
-                      required: true,
-                      message: <Text style={{fontSize:"17"}}><FormattedMessage id="enterCost" /></Text>,
+                      required: currentTotalAmt !== 0 ? false : true,
+                      message: (
+                        <Text style={{ fontSize: "17" }}>
+                          <FormattedMessage id="enterCost" />
+                        </Text>
+                      ),
                     },
                   ]}
                 >
                   <Input
-                  size="large"
+                    size="large"
                     type="number"
-                    placeholder="0"
+                    placeholder={currentTotalAmt !== 0 ? currentTotalAmt : "0"}
                     value={totalAmt}
                     onChange={(e) => setTotalAmt(parseInt(e.target.value))}
                   />
@@ -143,9 +149,7 @@ const NameSection = (getDateCost) => {
 
             <Row align={"middle"} style={{ marginTop: "10px" }}>
               <Col span={18}>
-                <Text style={{ fontSize: "17px" }}>
-                  Advance Amount
-                </Text>
+                <Text style={{ fontSize: "17px" }}>Advance Amount</Text>
               </Col>
               <Col span={6}>
                 <Form.Item
@@ -155,14 +159,20 @@ const NameSection = (getDateCost) => {
                   name="advance"
                   rules={[
                     {
-                      required: true,
-                      message: <Text style={{fontSize:"17"}}><FormattedMessage id="enterCost" /></Text>,
+                      required: currentAdvancAmt !== 0 ? false : true,
+                      message: (
+                        <Text style={{ fontSize: "17" }}>
+                          <FormattedMessage id="enterCost" />
+                        </Text>
+                      ),
                     },
                   ]}
                 >
                   <Input
-                  size="large"
-                    placeholder="0"
+                    size="large"
+                    placeholder={
+                      currentAdvancAmt !== 0 ? currentAdvancAmt : "0"
+                    }
                     type="number"
                     value={advanceAmt}
                     onChange={(e) => setAdvanceAmt(parseInt(e.target.value))}
@@ -179,7 +189,7 @@ const NameSection = (getDateCost) => {
               </Col>
               <Col span={6}>
                 <Input
-                size="large"
+                  size="large"
                   type="number"
                   placeholder={calculateRemaining()}
                   readOnly

@@ -228,7 +228,7 @@ const ShirtSection = ({
                       placeholder={
                         prevPocketsSize !== "" ? prevPocketsSize : "0"
                       }
-                      style={{ width: "70%", marginRight: "10px" }}
+                      style={{ width: "100%", marginRight: "10px" }}
                       options={pockets}
                       size="large"
                     />

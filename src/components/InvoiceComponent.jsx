@@ -13,6 +13,7 @@ import { storage } from "../firebase";
 import { convertToBlobObject, convertToBlobObjectPng } from "../func/blob";
 import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
+import { CustomerNameFormat } from "../func/customerNameFormatting";
 
 const { Text, Paragraph } = Typography;
 
@@ -20,7 +21,7 @@ const { Text, Paragraph } = Typography;
 
 */
 const InvoiceComponent = ({ item, custImg, clothImg }) => {
-  const name = item.customerName;
+  const name = CustomerNameFormat(item.customerName);
   const customerInvoice = item.customerInvoice;
   const { isInvoice, setIsInvoice } = useContext(InvoiceContext);
   const [urltoShare, setUrlToShare] = useState(null);

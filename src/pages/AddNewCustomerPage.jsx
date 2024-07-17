@@ -97,7 +97,7 @@ const AddNewCustomerPage = () => {
 
   let navigate = useNavigate();
 
-  const customerName = useSelector((state) => state.newCustomerRecord.name);
+  let customerName = useSelector((state) => state.newCustomerRecord.name);
   const customerPhone = useSelector((state) => state.newCustomerRecord.phone);
   const customerGender = useSelector((state) => state.newCustomerRecord.gender);
   const customerShirtDetails = useSelector(
@@ -363,6 +363,9 @@ const AddNewCustomerPage = () => {
           </Col>
           <Text style={{ fontSize: "25px" }}>
             <FormattedMessage id="newCustomer" />
+          </Text>
+          <Text style={{ fontSize: "25px" }}>
+            {`- ${customerName}` }
           </Text>
         </Row>
         {isNewCustomerDetails ? (

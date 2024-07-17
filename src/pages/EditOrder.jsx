@@ -18,7 +18,12 @@ import { getDate } from "../func/getDate";
 import { CustomerNameFormat } from "../func/customerNameFormatting";
 import { getShirtType } from "../func/shirtType";
 import { convertToBlobObject } from "../func/blob";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 import useNotificationHook from "../customeHooks/Notification";
 
 const { Text } = Typography;
@@ -104,7 +109,7 @@ const EditOrder = () => {
           }
         }
       }
-       // for other fields
+      // for other fields
       if (
         values.dueDate !== undefined ||
         values.DandGear !== undefined ||
@@ -199,7 +204,24 @@ const EditOrder = () => {
           <FormattedMessage id="updateSuccess" />
         );
 
-        //
+        // delete already saved invoice because user has updated data
+        const invoiceRef = ref(
+          storage,
+          `Invoices/${custName}_${custPhone}_${custInvoice}`
+        );
+
+        deleteObject(invoiceRef)
+          .then(() => {
+            console.log("Deleted that invoice");
+          })
+          .catch((e) => {
+            if (e.code === "storage/object-not-found") {
+              console.log("The Invoice does not exist");
+            } else {
+              console.log("An error occurred: ", e.message);
+            }
+          });
+
         goBack();
       } else {
         // console.log("NO NEED TO UPDATE!!!");
